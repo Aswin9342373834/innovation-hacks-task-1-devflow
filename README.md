@@ -12,6 +12,8 @@
 
 The application is built strictly as a client-side frontend using realistic local mock data, adhering to modern UI/UX design principles: clean typography, deliberate spacing, rounded cards, subtle shadows, high accessibility, and full responsiveness across desktop, tablet, and mobile devices.
 
+- **Live Demo**: [https://aswin9342373834.github.io/innovation-hacks-task-1-devflow/](https://aswin9342373834.github.io/innovation-hacks-task-1-devflow/)
+
 ---
 
 ## Features
