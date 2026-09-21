@@ -3,21 +3,33 @@ import {
   LayoutDashboard,
   FolderKanban,
   CheckSquare,
-  BarChart3,
+  Sparkles,
   Settings,
   X,
   Code2,
   Flame,
+  LogOut,
 } from "lucide-react";
-import { currentUser } from "../data/mockData";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar({
   isOpen = false,
   onClose,
   activeView = "Dashboard",
   onSelectView,
-  counts = { projects: 8, tasks: 24 },
+  counts = { projects: 0, tasks: 0 },
 }) {
+  const { user, logout } = useAuth();
+
+  const userAvatar = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "DF";
+
   const navItems = [
     {
       id: "Dashboard",
@@ -29,19 +41,19 @@ export default function Sidebar({
       id: "Projects",
       label: "Projects",
       icon: FolderKanban,
-      badge: counts.projects,
+      badge: counts.projects !== undefined ? counts.projects : null,
     },
     {
       id: "Tasks",
       label: "Tasks",
       icon: CheckSquare,
-      badge: counts.tasks,
+      badge: counts.tasks !== undefined ? counts.tasks : null,
     },
     {
-      id: "Analytics",
-      label: "Analytics",
-      icon: BarChart3,
-      badge: null,
+      id: "AIAssistant",
+      label: "AI Assistant",
+      icon: Sparkles,
+      badge: "AI",
     },
     {
       id: "Settings",
@@ -80,7 +92,7 @@ export default function Sidebar({
                   Dev<span className="text-blue-600">Flow</span>
                 </span>
                 <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  PRODUCTIVITY
+                  AI PLATFORM
                 </span>
               </div>
             </div>
@@ -137,6 +149,8 @@ export default function Sidebar({
                       className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                         isActive
                           ? "bg-blue-700/70 text-white"
+                          : item.badge === "AI"
+                          ? "bg-amber-100 text-amber-700 font-extrabold"
                           : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                       }`}
                     >
@@ -159,26 +173,37 @@ export default function Sidebar({
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-800">
-                  {currentUser.metrics.streakDays} Day Streak
+                  Task 4 Active
                 </p>
-                <p className="text-[10px] font-medium text-slate-500">Keep up the rhythm!</p>
+                <p className="text-[10px] font-medium text-slate-500">MongoDB Atlas Live</p>
               </div>
             </div>
           </div>
 
           {/* User Profile Footer */}
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/60 shadow-2xs">
-            <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-              {currentUser.avatar}
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/60 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
+                {userAvatar}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 truncate">
+                  {user?.name || "DevFlow User"}
+                </p>
+                <p className="text-[10px] text-slate-500 font-medium truncate capitalize">
+                  {user?.role || "Developer"}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-slate-900 truncate">
-                {currentUser.name}
-              </p>
-              <p className="text-[11px] text-slate-500 font-medium truncate">
-                {currentUser.role}
-              </p>
-            </div>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>

@@ -1,164 +1,292 @@
-# Developer Productivity Dashboard
+# DevFlow AI — AI-Powered Project & Task Management Platform
 
-## Innovation Hacks Full Stack Development Internship
-
-## Task 1 - Modern Frontend Development
+## Innovation Hacks Full Stack Development Internship — Task 4 Final Deliverable
 
 ---
 
-## Overview
+## Project Overview
 
-**DevFlow** is a modern, developer-focused SaaS productivity dashboard built for **Task 1** of the **Innovation Hacks Full Stack Development Internship**. It empowers engineers and engineering leads to monitor active sprint initiatives, track task completions, observe team workload, review git velocity metrics, and navigate project timelines seamlessly.
+**DevFlow AI** is a production-ready, full-stack project and task management platform that bridges developer workflows with artificial intelligence. Building upon the foundational work of Task 1 (React/Vite Frontend), Task 2 (Node.js/Express REST API), and Task 3 (MongoDB Atlas Database Integration), Task 4 introduces secure JWT authentication, real-time MongoDB synchronization across all views, and an **AI Task Generator** powered by Google Gemini with domain-aware fallback resilience.
 
-The application is built strictly as a client-side frontend using realistic local mock data, adhering to modern UI/UX design principles: clean typography, deliberate spacing, rounded cards, subtle shadows, high accessibility, and full responsiveness across desktop, tablet, and mobile devices.
-
-- **Live Demo**: [https://aswin9342373834.github.io/innovation-hacks-task-1-devflow/](https://aswin9342373834.github.io/innovation-hacks-task-1-devflow/)
+- **Frontend Repository**: [https://github.com/Aswin9342373834/innovation-hacks-task-1-devflow](https://github.com/Aswin9342373834/innovation-hacks-task-1-devflow)
+- **Backend Repository**: [https://github.com/Aswin9342373834/innovation-hacks-task-2-devflow-api](https://github.com/Aswin9342373834/innovation-hacks-task-2-devflow-api)
+- **Live Backend API**: [https://innovation-hacks-task-2-devflow-api.onrender.com](https://innovation-hacks-task-2-devflow-api.onrender.com)
+- **Health Check**: [https://innovation-hacks-task-2-devflow-api.onrender.com/api/health](https://innovation-hacks-task-2-devflow-api.onrender.com/api/health)
 
 ---
 
 ## Features
 
-- **Live Statistics Overview**: 4 core productivity metrics (Total Projects, Total Tasks, Completed Tasks, Overall Progress) with trend indicators. Dynamic calculations reflect task state changes in real time.
-- **Projects Grid**: Comprehensive project cards displaying project names, descriptions, categorical badges, progress bars, task counts, due dates, and contributor avatars.
-- **Interactive Task Management**: Real-time task board with clickable status checkboxes/badges that cycle tasks through `Todo` -> `In Progress` -> `Done`, automatically adjusting progress metrics.
-- **Multi-Factor Real-time Search**: Instant live searching across project names, project descriptions, task titles, and associated project names.
-- **Granular Task Filters**: Filter tasks concurrently by status (`All`, `Todo`, `In Progress`, `Done`) and priority (`All`, `Low`, `Medium`, `High`) with active result counters and instant "Clear Filters" reset.
-- **Live Activity Feed**: Chronological log of recent development events (commits, task status changes, project creation, pull request merges).
-- **Interactive Project Creation**: Polished "+ New Project" modal with validation that appends projects to the live state and updates productivity telemetry.
-- **Project & Task Detail Modals**: Clickable project and task inspection modals with contributor breakdowns, due dates, and status toggles.
-- **Notifications & Profile Menus**: Functional navbar popovers for viewing sprint notifications with "Mark all as read" and viewing developer profile credentials.
-- **Simulated States**: Built-in state triggers to test the animated skeleton **Loading State** and resilient **Error State** with working "Try Again" recovery.
-- **Zero Horizontal Overflow**: Guaranteed responsive layout optimized for all viewport sizes.
+### 1. Authentication & Security
+- **Secure Registration & Login**: User authentication with `bcryptjs` password hashing (salt rounds: 10).
+- **JWT Protection**: Signed JSON Web Tokens with strict environment variable enforcement (`process.env.JWT_SECRET`).
+- **Safe Serialization**: Sensitive fields like `passwordHash` are stripped from all API outputs via Mongoose schema transforms.
+- **Protected Client Routes**: React Context manages persistent login state across browser reloads via Bearer token verification (`GET /api/auth/me`).
+
+### 2. Live Dashboard
+- **MongoDB Atlas Aggregate Metrics**: Real-time counters for Total Projects, Active Projects, Total Tasks, Completed Tasks, and Overall Workspace Progress.
+- **Interactive Quick-Status**: Cycle task status (`Todo` → `In Progress` → `Done`) directly from cards with instant backend persistence.
+- **Embedded AI Quick Generator**: Launch task generation workflows directly from the dashboard overview.
+
+### 3. Project Management
+- Full CRUD operations with MongoDB Atlas persistence.
+- Create, inspect, edit, and delete projects with real-time status and progress updates.
+- Cascading delete safeguards: Deleting a project cleanly removes associated tasks.
+
+### 4. Task Management
+- Dual-view interface: Interactive **Kanban Board** (`Todo`, `In Progress`, `Done`) and responsive **List View**.
+- Filter concurrently by Status, Priority (`Low`, `Medium`, `High`), and Project association.
+- Modal forms for creating, editing, and deleting individual tasks.
+
+---
+
+## AI Feature
+
+### Primary Feature: AI Task Generator
+- **Workflow**: User inputs a high-level goal (e.g., *"Build an e-commerce mobile application"*).
+- **Decomposition**: DevFlow AI calls Google Gemini (`gemini-1.5-flash`) via the backend to decompose the objective into 4–8 concrete engineering tasks with titles, descriptions, priorities, and estimated hours.
+- **Interactive Review**: Users review, modify, check/uncheck tasks before persisting them.
+- **MongoDB Batch Persistence**: Clicking *"Save Selected Tasks"* batch-creates tasks in MongoDB associated with the selected project.
+- **Offline & Fallback Resilience**: If `AI_API_KEY` is omitted or the provider reaches quota, an intelligent domain-aware heuristic generator seamlessly synthesizes structured tasks without crashing.
+
+### Secondary Feature: AI Productivity Suggestions
+- Analyzes existing project tasks to identify high-priority bottlenecks, work-in-progress (WIP) limit warnings, and sprint velocity insights.
 
 ---
 
 ## Tech Stack
 
-- **Framework**: [React.js](https://react.dev/) (v19)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Language**: JavaScript (ESModules)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) (v3)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Data Layer**: Mock/Local Data (`src/data/mockData.js`)
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite 8, Tailwind CSS v3, Lucide Icons |
+| **Backend API** | Node.js, Express 4.21, express-validator 7.2, cors, dotenv |
+| **Database** | MongoDB Atlas, Mongoose 9.10 ODM |
+| **Security & Auth** | JSON Web Tokens (`jsonwebtoken`), `bcryptjs` |
+| **AI Provider** | Google Gemini REST API (`gemini-1.5-flash`) + Resilient Smart Engine Fallback |
+| **Testing** | Node.js Test Runner (`node:test`), Supertest, MongoDB Memory Server |
 
 ---
 
-## Project Structure
+## Architecture
 
 ```
-src/
-├── components/
-│   ├── ActivityItem.jsx    # Feed item with timeline node and timestamp
-│   ├── EmptyState.jsx      # Empty state with icon and "Clear Filters" action
-│   ├── ErrorState.jsx      # Error screen with functional "Try Again" reset
-│   ├── FilterBar.jsx       # Status and priority filter pills with clear button
-│   ├── LoadingState.jsx    # Animated skeleton loader for cards, grids, and rows
-│   ├── Modal.jsx           # Reusable accessible dialog modal with backdrop blur
-│   ├── Navbar.jsx          # Top navigation with search, notifications, and profile
-│   ├── ProgressBar.jsx     # Dynamic color progress bar with ARIA accessibility
-│   ├── ProjectCard.jsx     # Project card with progress, team avatars, and metadata
-│   ├── SearchBar.jsx       # Live search input with keyboard shortcut & clear button
-│   ├── Sidebar.jsx         # Collapsible desktop sidebar & mobile slide-out drawer
-│   ├── StatCard.jsx        # Reusable metric card with icons and trend badges
-│   └── TaskCard.jsx        # Interactive task card with status cycling and badges
-│
-├── data/
-│   └── mockData.js         # Realistic datasets for projects, tasks, user, activity
-│
-├── pages/
-│   └── Dashboard.jsx       # Main coordinating dashboard view with full interactivity
-│
-├── App.jsx                 # App layout wrapper, navigation coordinator, and footer
-├── main.jsx                # Application root entry point
-└── index.css               # Tailwind CSS directives and custom typography rules
+┌─────────────────────────────────────────────────────────┐
+│              React 19 / Vite Frontend UI                │
+│  (AuthContext • Dashboard • Projects • Tasks • AI View) │
+└────────────────────────────┬────────────────────────────┘
+                             │  HTTP + Bearer JWT
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│               Node.js + Express REST API                │
+│ (authRoutes • userRoutes • projectRoutes • taskRoutes)  │
+└──────────────┬───────────────────────────┬──────────────┘
+               │                           │
+               │ Mongoose ODM              │ Google Gemini API
+               ▼                           ▼
+┌────────────────────────────┐  ┌─────────────────────────┐
+│     MongoDB Atlas Cluster  │  │    Google Gemini LLM    │
+│  (Users, Projects, Tasks)  │  │  (Smart Fallback Engine)│
+└────────────────────────────┘  └─────────────────────────┘
 ```
 
 ---
 
-## Installation
+## Folder Structure
 
-Follow these steps to run the application locally:
+```
+DevFlow-AI/
+├── src/                               # Frontend (React 19 + Vite)
+│   ├── components/                    # Reusable UI components
+│   │   ├── Navbar.jsx                 # Top bar with user profile & AI shortcut
+│   │   ├── Sidebar.jsx                # Collapsible navigation drawer
+│   │   ├── ProjectCard.jsx            # Project card with progress
+│   │   ├── TaskCard.jsx               # Interactive task card
+│   │   ├── StatCard.jsx               # Metric card
+│   │   ├── FilterBar.jsx              # Status and priority filters
+│   │   └── Modal.jsx                  # Accessible dialog modal
+│   ├── context/
+│   │   └── AuthContext.jsx            # JWT authentication state & provider
+│   ├── pages/
+│   │   ├── Dashboard.jsx              # Main dashboard overview
+│   │   ├── ProjectsView.jsx           # Full project CRUD management
+│   │   ├── TasksView.jsx              # Kanban & list task management
+│   │   ├── AIAssistantView.jsx        # AI Task Generator & suggestions
+│   │   ├── SettingsView.jsx           # Profile & API diagnostics
+│   │   ├── Login.jsx                  # User login view
+│   │   └── Register.jsx               # User registration view
+│   └── services/
+│       ├── api.js                     # Centralized API fetch wrapper
+│       ├── authService.js             # Auth endpoints
+│       ├── projectService.js          # Project CRUD endpoints
+│       ├── taskService.js             # Task CRUD endpoints
+│       └── aiService.js               # AI generator & suggestions
+│
+├── DevFlow-API/                       # Backend (Node.js + Express REST API)
+│   ├── src/
+│   │   ├── config/                    # Database (Mongoose) & JWT configs
+│   │   ├── controllers/               # Route controllers (Auth, AI, Projects, Tasks, Users)
+│   │   ├── middleware/                # Auth, Error & 404 middleware
+│   │   ├── models/                    # Mongoose schemas (User, Project, Task)
+│   │   ├── routes/                    # Express routers
+│   │   ├── services/                  # Gemini AI service & fallback engine
+│   │   └── validators/                # express-validator schemas
+│   ├── tests/
+│   │   ├── api.test.js                # 38 Task 3 baseline tests
+│   │   └── auth_and_ai.test.js        # 12 Task 4 Auth & AI tests
+│   └── render.yaml                    # Render Web Service blueprint
+│
+├── .env.example                       # Frontend environment template
+└── README.md                          # Platform documentation
+```
 
+---
+
+## Environment Variables
+
+### Frontend (`.env` or hosting settings)
+```env
+# URL pointing to the running backend
+VITE_API_URL=http://localhost:5000
+```
+
+### Backend (`DevFlow-API/.env` or Render settings)
+```env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
+JWT_SECRET=your_secure_random_jwt_secret_key_min_32_characters
+AI_API_KEY=your_google_gemini_api_key_here
+```
+
+> [!CAUTION]
+> Never commit `.env` files or production credentials to Git. Both repositories contain properly configured `.gitignore` rules that prevent `.env` from being tracked.
+
+---
+
+## Local Installation
+
+### 1. Clone the repository
 ```bash
-# 1. Install dependencies
+git clone https://github.com/Aswin9342373834/innovation-hacks-task-1-devflow.git DevFlow-AI
+cd DevFlow-AI
+```
+
+### 2. Set up Backend
+```bash
+cd DevFlow-API
 npm install
+cp .env.example .env
+# Edit .env and supply your MONGODB_URI, JWT_SECRET, and AI_API_KEY
+```
 
-# 2. Start Vite development server
+### 3. Set up Frontend
+```bash
+cd ..
+npm install
+cp .env.example .env
+```
+
+---
+
+## Running Locally
+
+### Start Backend
+```bash
+cd DevFlow-API
 npm run dev
+# Server starts at http://localhost:5000
 ```
 
-The application will start locally at `http://localhost:5173/` (or the port indicated in your terminal).
-
-To create an optimized production build:
-
+### Start Frontend
 ```bash
-npm run build
-```
-
-To preview the production build locally:
-
-```bash
-npm run preview
+# In project root
+npm run dev
+# Vite server starts at http://localhost:5173
 ```
 
 ---
 
-## Available Features
+## API Endpoints
 
-| Feature Area | Description | Status |
+### Authentication
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Register new user & return JWT | No |
+| `POST` | `/api/auth/login` | Authenticate user & return JWT | No |
+| `GET` | `/api/auth/me` | Return authenticated user profile | Yes (Bearer) |
+| `POST` | `/api/auth/logout` | Client sign-out acknowledgment | No |
+
+### AI Intelligence
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/ai/generate-tasks` | Decompose goal into 4–8 tasks via Gemini | Optional |
+| `POST` | `/api/ai/save-tasks` | Batch persist approved AI tasks to MongoDB | Optional |
+| `GET` | `/api/ai/productivity-suggestions` | Velocity and bottleneck insights | Optional |
+
+### Projects
+| Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| **Productivity Statistics** | Total Projects (8), Total Tasks (24), Completed Tasks (16), Overall Progress (72%) | Completed |
-| **Projects Showcase** | AI Task Manager, E-Commerce Platform, Mobile Banking App, Portfolio Website, +4 more | Completed |
-| **Interactive Tasks** | Live status toggle between `Todo`, `In Progress`, and `Done` with strikethrough | Completed |
-| **Real-Time Search** | Matches project names, descriptions, task titles, and parent projects simultaneously | Completed |
-| **Status & Priority Filtering** | Filter tasks by `Todo`, `In Progress`, `Done` and `Low`, `Medium`, `High` | Completed |
-| **Clear Filters Action** | One-click reset in FilterBar and EmptyState components | Completed |
-| **New Project Creation** | Modal with form fields, validation, and auto-generated feed updates | Completed |
-| **Responsive Sidebar** | Fully functional navigation: Dashboard, Projects, Tasks, Analytics, Settings | Completed |
-| **Mobile Drawer Navigation** | Slide-out overlay drawer on mobile viewports with hamburger toggle | Completed |
-| **Skeleton Loading State** | Realistic animated skeleton UI for stats, cards, and task lists | Completed |
-| **Empty State** | Contextual zero-results state with icon and filter reset button | Completed |
-| **Error State** | Error card with working "Try Again" recovery action | Completed |
-| **Design Consistency** | Tailwind palette adhering to required background, primary, dark, and status colors | Completed |
+| `GET` | `/api/projects` | List all projects (supports `?status=`) |
+| `GET` | `/api/projects/:id` | Get project by ID |
+| `POST` | `/api/projects` | Create a new project |
+| `PUT` | `/api/projects/:id` | Update project details |
+| `DELETE` | `/api/projects/:id` | Delete project and cascade-remove tasks |
+
+### Tasks
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/tasks` | List tasks (filters: `status`, `priority`, `projectId`) |
+| `GET` | `/api/tasks/:id` | Get task by ID |
+| `POST` | `/api/tasks` | Create a task |
+| `PUT` | `/api/tasks/:id` | Update task details |
+| `PATCH` | `/api/tasks/:id/status` | Update task status (`todo`, `in-progress`, `done`) |
+| `DELETE` | `/api/tasks/:id` | Delete a task |
 
 ---
 
-## Responsive Design
+## Testing
 
-The dashboard layout is designed mobile-first and optimized for three primary device tiers:
+### Backend Automated Test Suite
+DevFlow API includes **50 automated tests** executed against an in-memory MongoDB server:
+```bash
+cd DevFlow-API
+npm test
+```
+**Results**:
+- 38/38 Task 3 Database & CRUD tests passing
+- 12/12 Task 4 Auth & AI tests passing
+- **Total: 50 tests passing (100%), 0 failures**
 
-1. **Desktop (1280px+)**:
-   - Fixed left sidebar with brand logo, workspace badges, streak indicator, and user info.
-   - Sticky top navbar with global search, notifications popover, and profile dropdown.
-   - Multi-column layout: 4-column statistics grid, 2-column project cards, and a 2:1 split between Tasks and Recent Activity feed.
-2. **Tablet (768px - 1024px)**:
-   - Sidebar automatically transitions into a collapsible slide-out drawer.
-   - 2-column statistics and responsive project cards.
-   - Search bar and filter controls neatly wrap without horizontal scroll.
-3. **Mobile (375px - 640px)**:
-   - Sidebar becomes a smooth slide-out drawer accessible via the top hamburger button.
-   - Full backdrop blur overlay with tap-to-dismiss behavior.
-   - Statistics, projects, and task cards stack into single columns with touch-friendly tap targets.
-   - Strict `overflow-x: hidden` guarantees no horizontal overflow.
+### Backend Linting
+```bash
+cd DevFlow-API
+npm run lint
+# ESLint passes with 0 errors
+```
+
+### Frontend Production Build & Linting
+```bash
+# In project root
+npm run build
+# Vite bundles successfully with zero warnings/errors
+
+npm run lint
+# Oxlint passes with 0 errors
+```
 
 ---
 
-## Screenshots
+## Deployment
 
-<!-- Add your application screenshots here -->
-*(Screenshots can be added here following local testing and demo recording)*
-
----
-
-## Demo Video
-
-<!-- Add your demo video link here -->
-*(Demo video link placeholder)*
+- **Backend (Render)**: Configured with `DevFlow-API/render.yaml` as a Node web service.
+  - Environment variables set in Render dashboard: `MONGODB_URI`, `JWT_SECRET`, `AI_API_KEY`, `NODE_ENV=production`.
+- **Frontend (Vercel / Netlify / GitHub Pages)**:
+  - Environment variable: `VITE_API_URL=https://innovation-hacks-task-2-devflow-api.onrender.com`.
 
 ---
 
 ## Author
 
 **Aswin Muthaiya**  
-Full Stack Development Intern  
-Innovation Hacks
+Full Stack Development Intern — Innovation Hacks  
+Platform: **DevFlow AI**

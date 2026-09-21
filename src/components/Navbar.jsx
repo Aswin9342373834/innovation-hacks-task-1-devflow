@@ -5,9 +5,12 @@ import {
   ChevronDown,
   User,
   Sparkles,
+  LogOut,
+  FolderKanban,
+  CheckSquare,
 } from "lucide-react";
 import SearchBar from "./SearchBar";
-import { sampleNotifications, currentUser } from "../data/mockData";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar({
   onToggleSidebar,
@@ -17,18 +20,41 @@ export default function Navbar({
   activeView = "Dashboard",
   onNavigate,
 }) {
+  const { user, logout } = useAuth();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [notifications, setNotifications] = useState(sampleNotifications);
 
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const userAvatar = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "DF";
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+  const notifications = [
+    {
+      id: "n1",
+      title: "Task 4 AI Engine Online",
+      description: "Google Gemini task generation connected successfully.",
+      time: "Just now",
+      read: false,
+    },
+    {
+      id: "n2",
+      title: "MongoDB Atlas Connected",
+      description: "Live cluster connected and synchronized.",
+      time: "5m ago",
+      read: true,
+    },
+  ];
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -60,10 +86,10 @@ export default function Navbar({
 
           <div>
             <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
-              {activeView}
+              {activeView === "AIAssistant" ? "AI Assistant" : activeView}
             </h1>
             <p className="hidden sm:block text-[11px] text-slate-400 font-semibold tracking-wide">
-              DevFlow Productivity Suite
+              DevFlow AI Productivity Platform
             </p>
           </div>
         </div>
@@ -80,6 +106,16 @@ export default function Navbar({
 
         {/* Right side: Notifications & User Profile */}
         <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Quick Nav Shortcut to AI */}
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate("AIAssistant")}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 text-blue-700 hover:from-blue-100 hover:to-indigo-100 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Generate Tasks</span>
+          </button>
+
           {/* Notifications Dropdown */}
           <div className="relative" ref={notifRef}>
             <button
@@ -99,39 +135,20 @@ export default function Navbar({
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-3 z-50">
                 <div className="px-4 pb-2.5 border-b border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    Notifications ({unreadCount})
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Notifications
+                  </h3>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    {unreadCount} new
                   </span>
-                  {unreadCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={markAllRead}
-                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
-                    >
-                      Mark all as read
-                    </button>
-                  )}
                 </div>
 
-                <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
-                  {notifications.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`px-4 py-3 hover:bg-slate-50 transition-colors ${
-                        !item.read ? "bg-blue-50/40" : ""
-                      }`}
-                    >
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-xs font-bold text-slate-900">
-                          {item.title}
-                        </h4>
-                        <span className="text-[10px] text-slate-400 whitespace-nowrap font-medium">
-                          {item.time}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                        {item.description}
-                      </p>
+                <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                  {notifications.map((n) => (
+                    <div key={n.id} className="p-3 hover:bg-slate-50 transition-colors">
+                      <p className="text-xs font-bold text-slate-800">{n.title}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{n.description}</p>
+                      <span className="text-[10px] text-slate-400 mt-1 block">{n.time}</span>
                     </div>
                   ))}
                 </div>
@@ -139,7 +156,7 @@ export default function Navbar({
             )}
           </div>
 
-          {/* Profile Dropdown */}
+          {/* User Profile Dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               type="button"
@@ -149,14 +166,14 @@ export default function Navbar({
               aria-expanded={showProfileMenu}
             >
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-                {currentUser.avatar}
+                {userAvatar}
               </div>
               <div className="hidden md:block text-left pr-1">
                 <div className="text-xs font-bold text-slate-900 leading-tight">
-                  {currentUser.name}
+                  {user?.name || "DevFlow User"}
                 </div>
-                <div className="text-[10px] text-slate-500 font-semibold">
-                  {currentUser.role}
+                <div className="text-[10px] text-slate-500 font-semibold capitalize">
+                  {user?.role || "Developer"}
                 </div>
               </div>
               <ChevronDown className="hidden md:block w-3.5 h-3.5 text-slate-400" />
@@ -167,20 +184,56 @@ export default function Navbar({
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-3 z-50">
                 <div className="px-4 pb-3 border-b border-slate-100">
                   <p className="text-xs font-bold text-slate-900">
-                    {currentUser.name}
+                    {user?.name || "DevFlow User"}
                   </p>
                   <p className="text-xs text-slate-500 truncate">
-                    {currentUser.email}
+                    {user?.email || "user@devflow.io"}
                   </p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span className="text-[11px] font-semibold text-emerald-600">
-                      {currentUser.status} (Task 1 Mode)
+                      Task 4 Live Database Mode
                     </span>
                   </div>
                 </div>
 
                 <div className="py-1 text-xs text-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onNavigate) onNavigate("Dashboard");
+                      setShowProfileMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer font-medium"
+                  >
+                    <FolderKanban className="w-4 h-4 text-slate-400" />
+                    <span>Dashboard</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onNavigate) onNavigate("Tasks");
+                      setShowProfileMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer font-medium"
+                  >
+                    <CheckSquare className="w-4 h-4 text-slate-400" />
+                    <span>My Tasks</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onNavigate) onNavigate("AIAssistant");
+                      setShowProfileMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer font-medium"
+                  >
+                    <Sparkles className="w-4 h-4 text-blue-500" />
+                    <span>AI Task Generator</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -190,19 +243,22 @@ export default function Navbar({
                     className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer font-medium"
                   >
                     <User className="w-4 h-4 text-slate-400" />
-                    <span>Profile Settings</span>
+                    <span>Settings & Profile</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onNavigate) onNavigate("Analytics");
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer font-medium"
-                  >
-                    <Sparkles className="w-4 h-4 text-slate-400" />
-                    <span>Productivity Insights</span>
-                  </button>
+
+                  <div className="pt-1 mt-1 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer font-semibold"
+                    >
+                      <LogOut className="w-4 h-4 text-rose-500" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
